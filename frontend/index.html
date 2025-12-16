@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BizSite Generator</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-black min-h-screen text-white">
+
+  <!-- NAVBAR -->
+  <nav class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+    <h1 class="text-xl font-bold tracking-tight">🚀 BizSite</h1>
+    <span class="text-sm text-gray-400">AI Website Generator</span>
+  </nav>
+
+  <!-- HERO -->
+  <section class="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    
+    <!-- LEFT -->
+    <div>
+      <h2 class="text-4xl lg:text-5xl font-extrabold leading-tight mb-6">
+        Build a <span class="text-emerald-400">professional business website</span><br/>
+        in under <span class="underline">10 seconds</span>
+      </h2>
+
+      <p class="text-gray-400 max-w-xl mb-8">
+        No coding. No design skills. Just enter your business details and get a
+        ready-to-use website instantly.
+      </p>
+
+      <div class="flex gap-4">
+        <span class="bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-full text-sm">⚡ AI Powered</span>
+        <span class="bg-blue-500/10 text-blue-400 px-4 py-2 rounded-full text-sm">📱 Mobile Ready</span>
+        <span class="bg-purple-500/10 text-purple-400 px-4 py-2 rounded-full text-sm">🎨 Modern UI</span>
+      </div>
+    </div>
+
+    <!-- RIGHT (FORM CARD) -->
+    <div class="bg-white text-black rounded-2xl shadow-2xl p-8">
+      <h3 class="text-2xl font-bold mb-1 text-center">Generate Website</h3>
+      <p class="text-gray-500 text-center mb-6">Fill details below</p>
+
+      <form id="siteForm" class="space-y-4">
+        <input id="bizName" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Business Name" required />
+        <input id="bizType" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Business Type" required />
+        <input id="bizLocation" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Location" required />
+        <input id="bizPhone" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Phone / WhatsApp" required />
+        <textarea id="bizProducts" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Products / Services" required></textarea>
+
+        <button type="submit"
+          class="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-900 transition">
+          ⚡ Generate Website
+        </button>
+      </form>
+
+      <div id="loading" class="hidden mt-4 text-center text-gray-600">
+        ⏳ Generating website…
+      </div>
+
+      <div id="actions" class="hidden mt-6 space-y-4">
+        <button id="downloadBtn"
+          class="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition">
+          ⬇️ Download HTML
+        </button>
+
+        <iframe
+          id="preview"
+          title="Website Preview"
+          class="w-full h-96 border rounded-xl shadow-inner">
+        </iframe>
+      </div>
+    </div>
+
+  </section>
+
+<script>
+const form = document.getElementById("siteForm");
+const loading = document.getElementById("loading");
+const actions = document.getElementById("actions");
+const preview = document.getElementById("preview");
+const downloadBtn = document.getElementById("downloadBtn");
+
+const bizName = document.getElementById("bizName");
+const bizType = document.getElementById("bizType");
+const bizLocation = document.getElementById("bizLocation");
+const bizPhone = document.getElementById("bizPhone");
+const bizProducts = document.getElementById("bizProducts");
+
+let generatedHTML = "";
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  loading.classList.remove("hidden");
+  actions.classList.add("hidden");
+
+  const payload = {
+    name: bizName.value,
+    type: bizType.value,
+    location: bizLocation.value,
+    phone: bizPhone.value,
+    products: bizProducts.value
+  };
+
+  try {
+    fetch("https://bizsite-generator.onrender.com/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const json = await res.json();
+    loading.classList.add("hidden");
+
+    if (!json.success || !json.html) {
+      alert("Generation failed");
+      return;
+    }
+
+    generatedHTML = json.html;
+    preview.srcdoc = generatedHTML;
+    actions.classList.remove("hidden");
+
+  } catch (err) {
+    loading.classList.add("hidden");
+    alert("Backend not reachable");
+    console.error(err);
+  }
+});
+
+downloadBtn.addEventListener("click", () => {
+  const blob = new Blob([generatedHTML], { type: "text/html" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "index.html";
+  a.click();
+});
+</script>
+
+</body>
+</html>
